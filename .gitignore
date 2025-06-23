@@ -1,0 +1,4 @@
+data/*
+docker/postgres_data/*
+docker/logs/*
+venv/*

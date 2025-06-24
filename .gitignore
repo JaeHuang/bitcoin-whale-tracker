@@ -2,3 +2,7 @@ data/*
 docker/postgres_data/*
 docker/logs/*
 venv/*
+scripts/SQL/__pycache__/*
+scripts/__pycache__/*
+dags/__pycache__/*
+docker/dags/__pycache__/*

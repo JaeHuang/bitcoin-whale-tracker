@@ -4,7 +4,6 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 
-# 🔧 將 scripts 資料夾加入 sys.path
 sys.path.append("/opt/airflow")
 
 

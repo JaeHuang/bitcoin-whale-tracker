@@ -1,8 +1,19 @@
 import requests
 import json
 import pandas as pd
+from sqlalchemy import create_engine
+from sqlalchemy.dialects.postgresql import insert
+import sys
+
+
+sys.path.append('/opt/airflow/scripts')
+
+from SQL.transactions import Transactions
+from SQL.inputs import Inputs
+from SQL.outputs import Outputs
 
 url = 'https://blockstream.info/api/blocks/tip/hash'
+
 
 def get_latest_block_hash():
     result = requests.get(url)
@@ -137,25 +148,40 @@ def extract_outputs_data(raw_block_transactions_df):
     outputs_df = pd.DataFrame(outputs_data)
     return outputs_df
 
+def save_df_to_db(df, table_name, engine, index_columns):
+    rows_to_insert = df.to_dict(orient='records')
+    stmt = insert(table_name).values(rows_to_insert)
+    stmt = stmt.on_conflict_do_nothing(index_elements=index_columns)
+
+    with engine.begin() as conn:
+        conn.execute(stmt)
+
 
 def clean_and_store_transactions(**context):
     latest_block_height = context['task_instance'].xcom_pull(task_ids='fetch_block_transactions')
     raw_block_transactions_df = pd.read_json(f'data/raw_blocks/block_{latest_block_height}.json')
+    db_user = 'airflow'
+    db_pass = 'airflow'
+    db_host = 'postgres'  # docker-compose service name
+    db_port = '5432'
+    db_name = 'whale_db'
+    engine = create_engine(f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}')
 
     # extract transactions data
     transactions_df = extract_transactions_data(raw_block_transactions_df, latest_block_height)
     print(f'Cleaned {latest_block_height} block with {transactions_df.shape[0]} transactions')
-    transactions_df.to_json(f'data/cleaned_blocks/block_{latest_block_height}.json', orient='records', index=False)
+    save_df_to_db(transactions_df, Transactions.__table__, engine, ['txid'])
 
     # extract inputs data
     inputs_df = extract_inputs_data(raw_block_transactions_df)
     print(f'Cleaned {latest_block_height} block with {inputs_df.shape[0]} inputs')
-    inputs_df.to_json(f'data/cleaned_blocks/inputs_{latest_block_height}.json', orient='records', index=False)
+    save_df_to_db(inputs_df, Inputs.__table__, engine, ['txid', 'input_index'])
 
     # extract outputs data
     outputs_df = extract_outputs_data(raw_block_transactions_df)
     print(f'Cleaned {latest_block_height} block with {outputs_df.shape[0]} outputs')
-    outputs_df.to_json(f'data/cleaned_blocks/outputs_{latest_block_height}.json', orient='records', index=False)
+    save_df_to_db(outputs_df, Outputs.__table__, engine, ['txid', 'output_index'])
+    return latest_block_height
 
 
 def save_txs_to_json(txs, file_name):

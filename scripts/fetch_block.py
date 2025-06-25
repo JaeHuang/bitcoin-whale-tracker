@@ -82,7 +82,7 @@ def fetch_block_transactions(**context):
     latest_block_hash = get_latest_block_hash()
     block_data = get_block_by_hash(latest_block_hash)
     latest_block_height = block_data[0]["height"]
-    block_transactions = get_all_transactions_by_block_hash(latest_block_hash, tx_count=200)
+    block_transactions = get_all_transactions_by_block_hash(latest_block_hash)
     save_txs_to_json(block_transactions, f'data/raw_blocks/block_{latest_block_height}.json')
     return latest_block_height
 

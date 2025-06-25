@@ -14,7 +14,7 @@ from scripts.fetch_block import fetch_block_transactions, clean_and_store_transa
 with DAG(
     dag_id="bitcoin_whale_tracker",
     start_date=datetime(2024, 1, 1),
-    schedule_interval=None,
+    schedule_interval="0 * * * *",
     catchup=False,
     tags=["btc"],
 ) as dag:

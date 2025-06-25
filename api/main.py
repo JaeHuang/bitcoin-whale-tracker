@@ -23,3 +23,8 @@ whale_service = WhaleService()
 def get_balance(address: str):
     balance = whale_service.get_address_balance(address)
     return {"address": address, "balance": f"{balance:,}"}
+
+@app.get("/activity/{address}")
+def get_activity(address: str):
+    activity = whale_service.get_address_activity_count(address)[0]
+    return {"address": address, "receive_count": activity[1], "send_count": activity[2], "total_activity": activity[3]}

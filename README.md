@@ -94,10 +94,8 @@ dbt run
 
 ## Airflow Tasks
 
-- `fetch_latest_block`: fetch latest block data
-- `parse_transactions`: extract & clean raw tx info
-- `sync_to_db`: load into PostgreSQL
-- (Optional) trigger DBT transforms
+- `fetch_block_transactions`: fetch latest block data and save to json
+- `clean_and_store_transactions`: extract & clean raw tx info and save to PostgreSQL
 
 ---
 

@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: stg_outputs
+    description: >
+      Cleaned outputs from raw Bitcoin transactions. Each row represents one transaction output,
+      including recipient address, output value (in BTC), and script type.
+    columns:
+      - name: txid
+        description: "Transaction ID"
+        tests:
+          - not_null
+
+      - name: output_index
+        description: "Index of the output in the transaction"
+        tests:
+          - not_null
+
+      - name: address
+        description: "Recipient address for this output"
+
+      - name: scriptpubkey_type
+        description: "Script type used for this output (e.g. p2pkh, p2wpkh, etc.)"
+
+      - name: value_btc
+        description: "Output value converted from satoshis to BTC"
+        tests:
+          - not_null
+
+
+  - name: stg_transactions
+    description: >
+      Cleaned transactions from raw Bitcoin data. Each row represents one transaction,
+      including input/output counts, fee, and total value.
+    columns:
+      - name: txid
+        description: "Transaction ID"
+        tests:
+          - not_null
+
+      - name: vin_count
+        description: "Number of inputs in the transaction"
+        tests:
+          - not_null
+
+      - name: vout_count
+        description: "Number of outputs in the transaction"
+        tests:
+          - not_null
+
+      - name: is_coinbase
+        description: "Whether the transaction is a coinbase transaction"
+        tests:
+          - not_null
+
+      - name: fee_btc
+        description: "Transaction fee in BTC"
+        tests:
+          - not_null
+
+      - name: input_btc
+        description: "Total input value in BTC"
+        tests:
+          - not_null
+
+      - name: output_btc
+        description: "Total output value in BTC"
+        tests:
+          - not_null
